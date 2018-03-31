@@ -60,9 +60,7 @@ public class Stemming {
              }
             /* StemmerSnow sss=new StemmerSnow();
              System.out.println( sss.stem(words));*/
-              zft zz=new zft();
-             out= zz.stem2(words);
-             System.out.println(out);
+             
               
 
        
