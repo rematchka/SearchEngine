@@ -47,6 +47,17 @@ public class IndexerJob implements Runnable {
     TreeMap<String,Integer>IDF=new TreeMap<String,Integer>();
     List<String> headers=new ArrayList<String>();
     List<String> Titles=new ArrayList<String>();
+    List<String> divs=new ArrayList<String>();
+    List<String> parag=new ArrayList<String>();
+    List<String> bold=new ArrayList<String>();
+    List<String> Table=new ArrayList<String>();
+    List<String> h1=new ArrayList<String>();
+    List<String> h2=new ArrayList<String>();
+    List<String> h3=new ArrayList<String>();
+    List<String> h4=new ArrayList<String>();
+    List<String> h5=new ArrayList<String>();
+    List<String> h6=new ArrayList<String>();
+    
     TreeMap<String, Set<String>> Stemmed = new TreeMap<String, Set<String>>();
     
    
@@ -85,6 +96,7 @@ public class IndexerJob implements Runnable {
         String title;
         Elements hTags;
         
+        
         ////////extracting headeer ,tilte, and body
      public void getInfo(Document doc)
     {   
@@ -94,7 +106,112 @@ public class IndexerJob implements Runnable {
         Countofwords+=body.length();
         hTags = doc.select("h1, h2, h3, h4, h5, h6");
     }
-     
+        public void extractDivs(Document doc)
+        {
+            Elements divss = doc.select("div");
+       //divs.get(0).html();
+       for(Element elem : divss){
+         //System.out.println(elem.html()); //get all elements inside div
+         //divs.add(elem.html());
+           for (String _word : elem.html().split(" ")) {
+                                 _word = _word.replace("^\"|\"$", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9]", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9\\s+]", "");
+                                if (_word == null || ( _word.length()) == 0||_word.contains(" "))
+                                continue;
+				String word = _word.toLowerCase();
+                               /////to call steming.///////////////////                            
+                            
+                               String newword=word;
+				
+                                
+				if (stopwords.contains(newword))
+					continue;
+              
+              divs.add(newword);
+                         }
+         }
+       
+       
+     }
+        
+        
+         public void extractParag(Document doc)
+        {
+           Elements paragraphs = doc.select("p");
+            for(Element p : paragraphs)
+            {  //System.out.println();
+           // parag.add(p.text());
+                for (String _word : p.text().split(" ")) {
+                                 _word = _word.replace("^\"|\"$", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9]", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9\\s+]", "");
+                                if (_word == null || ( _word.length()) == 0||_word.contains(" "))
+                                continue;
+				String word = _word.toLowerCase();
+                               /////to call steming.///////////////////                            
+                            
+                               String newword=word;
+				
+                                
+				if (stopwords.contains(newword))
+					continue;
+              
+              parag.add(newword);
+                         }
+            
+            }
+        }
+         public void getBold(Document doc)
+         {
+             Elements boldTags = doc.getElementsByTag("b");
+
+                for (Element tag : boldTags) {
+                   // System.out.println(tag.text());
+                  for (String _word : tag.text().split(" ")) {
+                                 _word = _word.replace("^\"|\"$", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9]", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9\\s+]", "");
+                                if (_word == null || ( _word.length()) == 0||_word.contains(" "))
+                                continue;
+				String word = _word.toLowerCase();
+                               /////to call steming.///////////////////                            
+                            
+                               String newword=word;
+				
+                                
+				if (stopwords.contains(newword))
+					continue;
+              
+              bold.add(newword);
+                         }
+                }
+                Elements strongTags = doc.getElementsByTag("strong");
+
+                for (Element tag : strongTags) {
+                   // System.out.println(tag.text());
+                    
+                    
+                    for (String _word : tag.text().split(" ")) {
+                                 _word = _word.replace("^\"|\"$", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9]", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9\\s+]", "");
+                                if (_word == null || ( _word.length()) == 0||_word.contains(" "))
+                                continue;
+				String word = _word.toLowerCase();
+                               /////to call steming.///////////////////                            
+                            
+                               String newword=word;
+				
+                                
+				if (stopwords.contains(newword))
+					continue;
+              
+              bold.add(newword);
+                         }
+                }
+        }
+      
      public void extractTitles()
      {
           for (String _word : title.split(" ")) {
@@ -143,6 +260,171 @@ public class IndexerJob implements Runnable {
           }
 }
      }
+     
+     public void getHeader1(Document doc)
+     {
+         Elements heads = doc.select("h1");
+// iterate and get inner html of that elements by
+          String html = heads.html();
+          for (String _word : html.split(" ")) {
+                                 _word = _word.replace("^\"|\"$", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9]", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9\\s+]", "");
+                                if (_word == null || ( _word.length()) == 0||_word.contains(" "))
+                                continue;
+				String word = _word.toLowerCase();
+                               /////to call steming.///////////////////                            
+                            
+                               String newword=word;
+				
+                                
+				if (stopwords.contains(newword))
+					continue;
+              
+              h1.add(newword);
+                         }
+     }
+       public void getHeader2(Document doc)
+     {
+         Elements heads = doc.select("h2");
+// iterate and get inner html of that elements by
+          String html = heads.html();
+          for (String _word : html.split(" ")) {
+                                 _word = _word.replace("^\"|\"$", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9]", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9\\s+]", "");
+                                if (_word == null || ( _word.length()) == 0||_word.contains(" "))
+                                continue;
+				String word = _word.toLowerCase();
+                               /////to call steming.///////////////////                            
+                            
+                               String newword=word;
+				
+                                
+				if (stopwords.contains(newword))
+					continue;
+              
+              h2.add(newword);
+                         }
+     }
+         public void getHeader3(Document doc)
+     {
+         Elements heads = doc.select("h3");
+// iterate and get inner html of that elements by
+          String html = heads.html();
+          for (String _word : html.split(" ")) {
+                                 _word = _word.replace("^\"|\"$", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9]", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9\\s+]", "");
+                                if (_word == null || ( _word.length()) == 0||_word.contains(" "))
+                                continue;
+				String word = _word.toLowerCase();
+                               /////to call steming.///////////////////                            
+                            
+                               String newword=word;
+				
+                                
+				if (stopwords.contains(newword))
+					continue;
+              
+              h3.add(newword);
+                         }
+     }
+           public void getHeader4(Document doc)
+     {
+         Elements heads = doc.select("h4");
+// iterate and get inner html of that elements by
+          String html = heads.html();
+          for (String _word : html.split(" ")) {
+                                 _word = _word.replace("^\"|\"$", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9]", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9\\s+]", "");
+                                if (_word == null || ( _word.length()) == 0||_word.contains(" "))
+                                continue;
+				String word = _word.toLowerCase();
+                               /////to call steming.///////////////////                            
+                            
+                               String newword=word;
+				
+                                
+				if (stopwords.contains(newword))
+					continue;
+              
+              h4.add(newword);
+                         }
+     }
+             public void getHeader5(Document doc)
+     {
+         Elements heads = doc.select("h5");
+// iterate and get inner html of that elements by
+          String html = heads.html();
+          for (String _word : html.split(" ")) {
+                                 _word = _word.replace("^\"|\"$", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9]", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9\\s+]", "");
+                                if (_word == null || ( _word.length()) == 0||_word.contains(" "))
+                                continue;
+				String word = _word.toLowerCase();
+                               /////to call steming.///////////////////                            
+                            
+                               String newword=word;
+				
+                                
+				if (stopwords.contains(newword))
+					continue;
+              
+              h5.add(newword);
+                         }
+     }
+               public void getHeader6(Document doc)
+     {
+         Elements heads = doc.select("h6");
+// iterate and get inner html of that elements by
+          String html = heads.html();
+          for (String _word : html.split(" ")) {
+                                 _word = _word.replace("^\"|\"$", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9]", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9\\s+]", "");
+                                if (_word == null || ( _word.length()) == 0||_word.contains(" "))
+                                continue;
+				String word = _word.toLowerCase();
+                               /////to call steming.///////////////////                            
+                            
+                               String newword=word;
+				
+                                
+				if (stopwords.contains(newword))
+					continue;
+              
+              h6.add(newword);
+                         }
+     }
+               public void extractTable(Document doc)
+               {
+                    Element table = doc.select("table").first();
+                Iterator<Element> iterator = table.select("td").iterator();
+                while(iterator.hasNext()){
+                     for (String _word : iterator.next().text().split(" ")) {
+                                 _word = _word.replace("^\"|\"$", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9]", "");
+                                 _word=_word.replaceAll("[^a-zA-Z0-9\\s+]", "");
+                                if (_word == null || ( _word.length()) == 0||_word.contains(" "))
+                                continue;
+				String word = _word.toLowerCase();
+                               /////to call steming.///////////////////                            
+                            
+                               String newword=word;
+				
+                                
+				if (stopwords.contains(newword))
+					continue;
+              
+              Table.add(newword);
+                         }
+                    //System.out.println("text : "+iterator.next().text()); //kolom -1
+                   // System.out.println("text : "+iterator.next().text()); //kolom -2
+                }
+               }
      ////////////////////////////parse file ///////////////////////
      /*
      1- parse file
@@ -154,9 +436,21 @@ public class IndexerJob implements Runnable {
     public void parseFile(String text)
     {
          Document doc = Jsoup.parse(text);
+         parseFile1(doc);
          getInfo(doc);  
+         extractDivs(doc);
+         extractParag(doc);
+         getBold(doc);
         extractTitles();
         extractHeaders();
+        getHeader6(doc);
+        getHeader5(doc);
+        getHeader4(doc);
+        getHeader3(doc);
+        getHeader2(doc);
+        getHeader1(doc);
+      //  extractTable(doc);
+        //getHeader6();
           int pos=0;
           int strLen;
          for (String _word : body.split(" ")) {
@@ -214,6 +508,47 @@ public class IndexerJob implements Runnable {
 
                                     if (iterator.hasNext()) {
                                       Words foo = iterator.next();
+                                      if( divs.contains(newword))
+                                      {
+                                          foo.SetType("Divs");
+                                      }
+                                    /*  if( Table.contains(newword))
+                                      {
+                                          foo.SetType("Table");
+                                      }*/
+                                      if( bold.contains(newword))
+                                      {
+                                          foo.SetType("Bold");
+                                      }
+                                      if( parag.contains(newword))
+                                      {
+                                          foo.SetType("Parag");
+                                      }
+                                      if( h1.contains(newword))
+                                      {
+                                          foo.SetType("H1");
+                                      }
+                                      if( h2.contains(newword))
+                                      {
+                                          foo.SetType("H2");
+                                      }
+                                      if( h3.contains(newword))
+                                      {
+                                          foo.SetType("H3");
+                                      }
+                                      if( h4.contains(newword))
+                                      {
+                                          foo.SetType("H4");
+                                      }
+                                      if( h5.contains(newword))
+                                      {
+                                          foo.SetType("H5");
+                                      }
+                                      if( h6.contains(newword))
+                                      {
+                                          foo.SetType("H6");
+                                      }
+                                      
                                       foo.Headerss=headers.contains(newword);
                                       foo.title=title.contains(newword);
                                       foo.Stem=stemmed;
@@ -232,6 +567,46 @@ public class IndexerJob implements Runnable {
                                       foo.Headerss=headers.contains(newword);
                                       foo.title=title.contains(newword);
                                       foo.Stem=stemmed;
+                                      if( divs.contains(newword))
+                                      {
+                                          foo.SetType("Divs");
+                                      }
+                                   /*   if( Table.contains(newword))
+                                      {
+                                          foo.SetType("Table");
+                                      }*/
+                                      if( bold.contains(newword))
+                                      {
+                                          foo.SetType("Bold");
+                                      }
+                                      if( parag.contains(newword))
+                                      {
+                                          foo.SetType("Parag");
+                                      }
+                                      if( h1.contains(newword))
+                                      {
+                                          foo.SetType("H1");
+                                      }
+                                      if( h2.contains(newword))
+                                      {
+                                          foo.SetType("H2");
+                                      }
+                                      if( h3.contains(newword))
+                                      {
+                                          foo.SetType("H3");
+                                      }
+                                      if( h4.contains(newword))
+                                      {
+                                          foo.SetType("H4");
+                                      }
+                                      if( h5.contains(newword))
+                                      {
+                                          foo.SetType("H5");
+                                      }
+                                      if( h6.contains(newword))
+                                      {
+                                          foo.SetType("H6");
+                                      }
                                       
                                     }
                                 
@@ -380,6 +755,71 @@ for (Map.Entry<String,  List<Words>> entry : entries) {
           }
         
     }
+    
+    
+    
+      public void parseFile1(Document doc)
+    {
+       
+         String fileName=docID;
+
+           String line="";
+            //document=Jsoup.connect(url).timeout(100).get();
+
+
+           
+           String fileTitle=doc.title().toString();
+             line+=fileTitle;
+
+
+          String  fileBody=doc.body().text();
+            line+=fileBody;
+
+            Elements elem=doc.select("h1,h2,h3,h4,h5,h6");
+         String fileHeaders="";
+            for(Element e:elem)
+            {
+                fileHeaders+=e.text()+'\n';
+
+            }
+            line+=fileHeaders;
+
+            //Get description from document object.
+
+              Elements des= doc.select("meta[name=description]");
+              String description="";
+              if(des.size()>0&&des!=null&&des.get(0)!=null)   description=des .get(0).attr("content");
+
+           //   System.out.println(description);
+
+
+            //Get keywords from document object.
+            String keywords="";
+            Elements keys =
+                    doc.select("meta[name=keywords]");
+                  if(keys.size()>0&&keys!=null&&keys.first()!=null)         keywords=keys.first().attr("content");
+
+
+            String docString=doc.toString();
+            if(line.equals(""))
+            {
+                System.out.println("doc is empty");
+
+
+            }
+            else {
+                   DataBaseConnection dbc=new DataBaseConnection();
+                  dbc.create();
+                  dbc.NEwURL();
+                   dbc.insertUrL(fileName,docString,keywords,description,fileHeaders,line,fileBody);
+
+            }
+
+        
+
+       
+    }
+
 }
    
    

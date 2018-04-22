@@ -45,6 +45,7 @@ public class DataBaseConnection {
     DBCollection documents;
     DBCollection WordDoc;
     DBCollection URLS;
+    DBCollection URLDoc;
     
     public void getDocumentINDX()
     {
@@ -62,9 +63,8 @@ public class DataBaseConnection {
    {
        documents=db.getCollection("NewWordURl");
    }
-   public void getStatus()
-   {
-       
+   public void NEwURL()   {
+       URLDoc=db.getCollection("URLDocument");
    }
     public void create()
     {
@@ -116,6 +116,7 @@ public class DataBaseConnection {
                               WL.put("TF",files.get(i).TF);
 
                              //  URLWORDLIST.add(WL);
+                             deleteWordBulk(keyS,key,files.get(i).getID());
                             
                              BasicDBObject update = new BasicDBObject();
 
@@ -156,17 +157,17 @@ public class DataBaseConnection {
        documents.update(new BasicDBObject("Stem", stem), new BasicDBObject("$pull", new BasicDBObject("WordURL", new BasicDBObject("WordName", word).append("ID", docid))));
       
     }
-    public void deleteWordBulk()
+    public void deleteWordBulk(String stem,String word ,String url)
     {
         BulkWriteOperation  bulkWriteOperation= documents.initializeUnorderedBulkOperation();
-          BasicDBObject query = new BasicDBObject("Stem", "howtobehappynnnnnnnnnnnnnnnnnnnnnnn").append("WordURL", new BasicDBObject("WordName", "hellofromanotherdimenssion").append("ID", 60));  
+          BasicDBObject query = new BasicDBObject("Stem", stem).append("WordURL", new BasicDBObject("WordName", word).append("ID", url));  
         //  query.put("WordURL.WordName", "hellofromanotherdimenssion");
           //query.put("WordURL.ID",60);
           
          bulkWriteOperation.find(query).removeOne();
           
           
-           List<BasicDBObject> wordURLList = new ArrayList<BasicDBObject>();
+       /*    List<BasicDBObject> wordURLList = new ArrayList<BasicDBObject>();
 
                             List<BasicDBObject> URLWORDLIST = new ArrayList<BasicDBObject>(); 
                                 BasicDBObject WL = new BasicDBObject();
@@ -180,7 +181,7 @@ public class DataBaseConnection {
                                   WL.put("ID",60);                            
 
                                URLWORDLIST.add(WL);
-          
+          */
           
            //   updateReq.update(new BasicDBObject("$pull",new BasicDBObject("WordURL", URLWORDLIST))); 
               BulkWriteResult result=bulkWriteOperation.execute();
@@ -285,9 +286,10 @@ public class DataBaseConnection {
                               WL.put("TF",files.get(i).TF);
 
                                URLWORDLIST.add(WL);
+                                 deleteWordBulk(keyS,key,files.get(i).getID());
 
-
-                           }                                                                        
+                           }       
+                            
               BulkUpdateRequestBuilder updateReq= bulkWriteRequestBuilder.upsert();
               updateReq.update(new BasicDBObject("$addToSet",new BasicDBObject("WordURL", URLWORDLIST)));            
                     
@@ -358,10 +360,11 @@ public class DataBaseConnection {
         )).results();*/
         
         
-        
+
+                   
          List<DBObject> aggregationQuery = Arrays.<DBObject>asList(
             new BasicDBObject("$unwind", "$WordLIst"),
-             new BasicDBObject("$group", new Document("_id", "$WordLIst.WordName").append("URL", new Document("$addToSet",new Document("URL","$_id").append("Stem","$WordLIst.Stem" ))))
+             new BasicDBObject("$group", new Document("_id", "$WordLIst.WordName").append("URL", new Document("$addToSet",new Document("URL","$_id").append("Stem","$WordLIst.Stem" ).append("FreqOfWord","$WordLIst.FreqOfWord" ).append("Position","$WordLIst.Position").append("TF","$WordLIst.TF").append("Type", "$WordLIst.Type").append("Title", "$WordLIst.Title"))))
     );
 
     System.out.println(aggregationQuery);
@@ -401,12 +404,36 @@ while (aggregateOutput.hasNext())
   //DBCursor results = documents.find(query, fields); // FROM yourCollection
      List<BasicDBObject>  URLs= (List<BasicDBObject>) dbObject.get("URL");
      BasicDBObject dbo=URLs.get(0);
+      double cnt=URLs.size();     
+     double idf=Math.log(1+((double)5000/cnt));
      String stem=(String)dbo.get("Stem");
-     double cnt=URLs.size();
      words.put("Count", cnt);
      words.put("Stem", stem);
-     double idf=Math.log(1+((double)5000/cnt));
      words.put("idf", idf);
+     List<BasicDBObject>  URLlist=new ArrayList<BasicDBObject>();
+     
+     for (int i = 0; i < URLs.size(); i++) {
+         BasicDBObject List=new BasicDBObject();
+         
+         BasicDBObject dboo=URLs.get(i);
+         String URL=(String)dboo.get("URL");
+           //         new BasicDBObject("$group", new Document("_id", "$WordLIst.WordName").append("URL", new Document("$addToSet",new Document("URL","$_id").append("Stem","$WordLIst.Stem" ).append("FreqOfWord","$WordLIst.FreqOfWord" ).append("Position","$WordLIst.Position").append("TF","$WordLIst.TF").append("Type", "$WordLIst.Type").append("Title", "$WordLIst.Title"))))
+         int FreqOfWord=(int)dboo.get("FreqOfWord");
+          List<BasicDBObject>Position=( List<BasicDBObject>)dboo.get("Position");
+         Double TF=(Double)dboo.get("TF");   
+          List<BasicDBObject> Type=( List<BasicDBObject>)dboo.get("Type");
+         boolean Title=(boolean)dboo.get("Title");
+         
+         
+         List.append("URL", URL);
+         List.append("FreqOfWord", FreqOfWord);
+          List.append("Position", Position);
+          List.append("Type", Type);
+          List.append("TF", TF);
+          List.append("Title", Title);
+          URLlist.add(List);
+     }
+     words.append("URLList", URLlist);
     documentss.add(words);
      //WordDoc.insert(words);
      
@@ -457,11 +484,17 @@ while (aggregateOutput.hasNext())
 
 
                   List<String>poss=new ArrayList();
+                  List<String>Type=new ArrayList();
                   for(int j=0;j<files.get(i).pos.size();j++)
                   {    ID=files.get(i).ID;
                       poss.add(new Integer(files.get(i).pos.get(j)).toString());
                   }
+                  for(int j=0;j<files.get(i).type.size();j++)
+                  {    ID=files.get(i).ID;
+                      Type.add((files.get(i).type.get(j)).toString());
+                  }
                   String[] posititonArray = poss.toArray(new String[0]);
+                   String[] TypeArray = Type.toArray(new String[0]);
 
                 
                    document.put("FreqOfWord",files.get(i).getCount());
@@ -470,6 +503,7 @@ while (aggregateOutput.hasNext())
                    document.put("Header", files.get(i).Headerss);
                    document.put("Title", files.get(i).title);
                    document.put("Stem", files.get(i).Stem);
+                   document.put("Type", TypeArray);
                    
 
                    // wordURLList.add(URLL);
@@ -508,6 +542,19 @@ while (aggregateOutput.hasNext())
        //documents.update( new BasicDBObject("$pull", new BasicDBObject("URL",URL)));
        
    }
-   
+   public void insertUrL(String fileName,String docString,String keywords,String description,String fileHeaders,String line,String fileBody)
+   {
+     BasicDBObject BDBO= new BasicDBObject(); 
+     BDBO.append("URL", fileName);
+     BDBO.append("keywords", keywords);
+     BDBO.append("description", description);
+     BDBO.append("fileHeaders", fileHeaders);
+     BDBO.append("Document", line);
+     BDBO.append("Body", fileBody);
+     BDBO.append("DocWithTags", docString);
+     URLDoc.insert(BDBO);
+     
+     
+   }
      
 }

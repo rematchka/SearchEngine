@@ -15,6 +15,7 @@ import java.util.ArrayList;
       public class Words {
 		public String ID;
                 public ArrayList<Integer> pos = new ArrayList<Integer>();
+                 public ArrayList<String> type = new ArrayList<String>();
 		public int position;
                 public int cnt=0;
                 public double TF=0;
@@ -52,6 +53,10 @@ import java.util.ArrayList;
                 public void SetHeader(boolean x)
                 {
                     Headerss=x;
+                }
+                 public void SetType(String x)
+                {
+                    type.add(x);
                 }
                 public void SetTitle(boolean x)
                 {
